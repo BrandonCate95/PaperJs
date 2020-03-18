@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Load the Paper.js library -->
+<script type="text/javascript" src="js/dist/paper-full.js"></script>
+<!-- Define inlined JavaScript -->
+<script type="text/paperscript" canvas="canvas-1">
+
+initializePath();
+
+function initializePath() {
+
+	var width, height, center;
+	center = view.center;
+	width = view.size.width;
+	height = view.size.height;
+	
+	path1 = new Path();
+	
+	// The amount of points in the path:
+	points = 25;
+
+	// The distance between the points:
+	length = 35;	
+	
+	var start = view.center / [10, 1];
+	for (var i = 0; i < points; i++)
+		path1.add(start + new Point(i * length, 0));
+	
+	//path1.add(vector1);
+	
+	//path2 = new Path();
+	//path2.add(start);
+	//path2.add(windVector);
+	
+	//var p1 = path1.lastSegment.point;
+	//var p2 = path1.lastSegment.previous.point;
+	
+	//var branchVector = p1 - p2;
+	
+	//var velocityVector = path2.lastSegment.point - path1.lastSegment.point;
+	
+	//path1.lineBy(velocityVector);	
+	path1.fullySelected = true;
+	//path2.fullySelected = true;
+	
+	//console.log(velocityVector);
+	
+}
+
+t = 0;
+var dx = 0;
+var dy = 0;
+
+//force vector
+var p1 = new Point(0,0);
+var p2 = new Point(100,100);
+
+var forceVector = p2 - p1;
+var forceMagnitude = 1;
+
+console.log(forceVector);
+
+function onFramea(event){
+	//var p1 = path1.lastSegment.point;
+	//var p2 = path1.lastSegment.previous.point;
+	
+	//var branchVector = p1 - p2;
+	
+	//var angle = branchVector.angle - windVector.angle;
+	//var dampCoe = -1 * t / 500;
+	//var dampExp = Math.exp(dampCoe);
+	//var change = Math.sin(t * (Math.PI/180.0)) * dampExp;
+	
+	//var change = Math.exp(-1 * t) * Math.pow(Math.cos(angle * (Math.PI/180.0)),2);
+	
+	//branchVector.angle -= change;
+	
+	//path1.lastSegment.point = path1.lastSegment.previous.point + branchVector;
+	//
+	//t++;
+	
+	//console.log(angle,change);
+	
+	//console.log(dampCoe)
+	//console.log(branchVector.angle);
+	
+	
+	
+	//force vector
+	var forceX = forceMagnitude * Math.cos(forceVector.angle * (Math.PI/180.0));
+	var forceY = forceMagnitude * Math.sin(forceVector.angle * (Math.PI/180.0));
+	
+	var m = 1000;
+	var b = .5;
+	
+	var aX = forceX / m;
+	var aY = forceY / m;
+	
+	dx = aX * t - b * dx;
+	path1.firstSegment.point.x += dx;
+	
+	dy = aY * t - b * dy;
+	path1.firstSegment.point.y += dy;
+	
+	for (var i = 0; i < points - 1; i++) {
+		var segment = path1.segments[i];
+		var nextSegment = segment.next;
+		var vector = segment.point - nextSegment.point;
+		vector.length = length;
+		nextSegment.point = segment.point - vector;
+	}
+	path1.smooth({ type: 'continuous' });
+	
+	t++;
+	forceVector.angle -= 1;
+	
+}
+
+</script>
+</head>
+<body>
+<div class="canvas">
+<style>
+canvas{
+	width:100%;
+	height:100%;
+}
+</style>
+<canvas resize="true" id="canvas-1"></canvas>
+</body>
+</html>

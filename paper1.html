@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Load the Paper.js library -->
+<script type="text/javascript" src="js/dist/paper-full.js"></script>
+<!-- Define inlined JavaScript -->
+<script type="text/paperscript" canvas="canvas-1">
+
+initializePath();
+
+function initializePath() {
+
+	var width, height, center;
+	center = view.center;
+	width = view.size.width;
+	height = view.size.height;
+	
+	branch(width/2, height);
+}
+
+function branch(startX,startY){
+	path = new Path();
+	path.fillColor = {
+		hue: Math.random() * 360,
+		saturation: 1,
+		brightness: 1,
+		opacity: 0.4
+	};
+	path.segments = [];
+	//path.lineBy(40,-150);
+	var num = Math.floor(Math.random()*9 + 20);
+	num = 10
+	var x = startX;
+	var y = startY;
+	var delta = Math.floor(Math.random()*20 + 10);
+	for(var i = 0; i < num; i++){
+		x = x + Math.floor(Math.random()*100 + 10);
+		y = y - Math.floor(Math.random()*80 + 10);
+		var middlePoint = new Point(x,y);
+		
+		delta = delta * 0.8;
+		var step = new Point(delta,-delta);
+		step.angle += 90;
+		
+		var top = middlePoint + step;
+		var bottom = middlePoint - step;
+
+		path.add(top);
+		path.insert(0, bottom);
+
+	}
+	myCircle = new Path.Circle(top, 10*Math.random() + 10);
+	myCircle.fillColor = path.fillColor;
+	
+	path.smooth();
+	//path.fullySelected = true;
+	
+}
+
+
+angle = 0;
+function onFrame(event) {
+	
+	var leftStart = path.firstSegment;
+	var leftNext = path.firstSegment.next;
+	var rightStart = path.lastSegment;
+	var rightNext = path.lastSegment.previous;
+	
+	for(var i = 0; i < (path.segments.length / 2) - 1; i++){
+		var leftVector = leftStart.point - leftNext.point;
+		
+		//the further away the vector is from the wind vector 
+		
+		
+		leftVector.angle += Math.cos(angle*(Math.PI/180.0) * 1) * 1;
+		leftStart.point =  leftNext.point + leftVector;
+		
+		var rightVector = rightStart.point - rightNext.point;
+		rightVector.angle += Math.cos(angle*(Math.PI/180.0) * 1) * 1;
+		rightStart.point =  rightNext.point + rightVector;	
+		
+		var tmpLeft = leftNext.next;
+		leftStart = leftNext;
+		leftNext = tmpLeft;
+		
+		var tmpRight = rightNext.previous;
+		rightStart = rightNext;
+		rightNext = tmpRight;		
+	}	
+	
+	myCircle.position = (path.firstSegment.point + path.lastSegment.point) / 2;
+	
+	angle++;
+}
+</script>
+</head>
+<body>
+<div class="canvas">
+<style>
+canvas{
+	width:100%;
+	height:100%;
+}
+</style>
+<canvas resize="true" id="canvas-1"></canvas>
+</body>
+</html>
